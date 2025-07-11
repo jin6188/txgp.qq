@@ -637,17 +637,81 @@
     if(typeof(pgvMain)=='function')pgvMain();//埋点上报
 
 <script>
+  // 兑换码列表（示例）
+  const validCDKs = [
+    'psyABC123', 'psyXYZ789', 'psyLMN456', 'psyQWE321', 'psyRTE654',
+    // 你可以继续添加兑换码
+  ];
+
+  // 防止重复领取（使用 localStorage）
+  const userCID = 'psyABC123'; // 假设这是用户输入的兑换码（CID）
+  const hasClaimedKey = `claimed_${userCID}`; // 唯一标识每个用户的标记
+  const claimTimeKey = `claim_time_${userCID}`; // 存储领取的时间戳
+
+  // 验证码功能（简单示例）
+  function verifyCodeMatch(inputCode) {
+    const currentCode = 'ABC123'; // 假设这是动态生成的验证码
+    return inputCode.toUpperCase() === currentCode;
+  }
+
+  // 检查是否过期
+  function isClaimExpired() {
+    const claimTime = localStorage.getItem(claimTimeKey);
+    if (claimTime) {
+      const currentTime = new Date().getTime();
+      const diff = currentTime - claimTime; // 时间差，单位：毫秒
+      return diff > 24 * 60 * 60 * 1000; // 如果超过24小时
+    }
+    return false; // 如果没有记录领取时间，则没有过期
+  }
+
+  // 清除过期的记录
+  function clearExpiredClaim() {
+    if (isClaimExpired()) {
+      localStorage.removeItem(hasClaimedKey); // 清除领取标记
+      localStorage.removeItem(claimTimeKey); // 清除领取时间
+    }
+  }
+
+  // 每次加载页面时检查并清除过期记录
+  clearExpiredClaim();
+
   document.getElementById('confirmButtonId').addEventListener('click', function(e){
-    // 假设你页面有输入框，比如验证码输入框id是verifyInput
-    var userInput = document.getElementById('verifyInput').value;
-    if(!window.verifyCodeMatch(userInput)) {
+    const userInput = document.getElementById('verifyInput').value; // 用户输入的验证码
+    const userCDK = document.getElementById('cdkInput').value; // 用户输入的兑换码
+
+    // 验证码校验
+    if (!verifyCodeMatch(userInput)) {
       alert('验证码错误，请重新输入');
       e.preventDefault(); // 阻止默认操作
       return false;
     }
-    // 这里可以继续调用原本的兑换逻辑，或者触发原有事件
+
+    // 检查是否已经领取过（防止重复领取）
+    if (localStorage.getItem(hasClaimedKey)) {
+      alert('您已经领取过该兑换码，请勿重复领取！');
+      e.preventDefault();
+      return false;
+    }
+
+    // 校验兑换码是否有效
+    if (!validCDKs.includes(userCDK)) {
+      alert('无效的兑换码，请检查后再试');
+      e.preventDefault();
+      return false;
+    }
+
+    // 如果通过验证，标记已领取
+    localStorage.setItem(hasClaimedKey, 'true'); // 设置标记，防止重复领取
+    localStorage.setItem(claimTimeKey, new Date().getTime()); // 记录领取时间
+
+    // 继续执行兑换逻辑
+    alert(`兑换成功！您已成功领取皮肤或奖励！`);
+
+    // 这里可以继续触发兑换奖励的相关操作，或者跳转到其他页面等。
   });
 </script>
+
 
 
 </body>

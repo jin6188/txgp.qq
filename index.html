@@ -234,8 +234,52 @@
 			<input class="inpt2" type="text" maxlength="4" id="verifyCode">
 
 			<a id="changeVerifyImg" href="javascript:void(0);" title="点击刷新验证码">
-				<img id='imgVerify' class="ewm" src='//ptlogin2.qq.com/getimage?aid=21000104'>
-			</a>
+    <canvas id="imgVerify" class="ewm" width="100" height="40" style="border:1px solid #ccc; cursor:pointer;"></canvas>
+</a>
+			<script>
+  (function(){
+    const canvas = document.getElementById('imgVerify');
+    const ctx = canvas.getContext('2d');
+    let currentCode = '';
+
+    function randomChar() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      return chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    function drawCode() {
+      currentCode = '';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#f0f0f0';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = '24px Arial';
+      ctx.fillStyle = '#333';
+
+      for(let i = 0; i < 4; i++) {
+        const char = randomChar();
+        currentCode += char;
+        const x = 15 + i * 20;
+        const y = 30 + (Math.random() * 5 - 2);
+        const angle = (Math.random() * 30 - 15) * Math.PI / 180;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillText(char, 0, 0);
+        ctx.restore();
+      }
+    }
+
+    canvas.addEventListener('click', drawCode);
+    drawCode();
+
+    window.verifyCodeMatch = function(inputCode) {
+      return inputCode.toUpperCase() === currentCode;
+    }
+  })();
+</script>
+
+
 			<a id="confirmButtonId" href="javascript:;" class="btn_dh" ontouchend="PTTSendClick('btn','btn_dh','点击兑换');"></a>
 		</div>
 		<script src="//game.gtimg.cn/images/js/2018foot/foot.js"></script>
@@ -592,7 +636,20 @@
     }
     if(typeof(pgvMain)=='function')pgvMain();//埋点上报
 
+<script>
+  document.getElementById('confirmButtonId').addEventListener('click', function(e){
+    // 假设你页面有输入框，比如验证码输入框id是verifyInput
+    var userInput = document.getElementById('verifyInput').value;
+    if(!window.verifyCodeMatch(userInput)) {
+      alert('验证码错误，请重新输入');
+      e.preventDefault(); // 阻止默认操作
+      return false;
+    }
+    // 这里可以继续调用原本的兑换逻辑，或者触发原有事件
+  });
 </script>
+
+
 </body>
 </html>
 

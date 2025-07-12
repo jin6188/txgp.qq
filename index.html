@@ -233,8 +233,8 @@
 			<input class="inpt1" type="text" id="exchangeCDKeyValue">
 			<input class="inpt2" type="text" maxlength="4" id="verifyCode">
 
-			<a id="changeVerifyImg" href="javascript:void(0);" title="点击刷新验证码">
-				<img id='imgVerify' class="ewm" src='//ptlogin2.qq.com/getimage?aid=21000104'>
+			<a <canvas id="verifyCanvas" width="100" height="40" style="cursor:pointer; border:1px solid #ccc;" title="点击刷新验证码"></canvas>
+
 			</a>
 			<a id="confirmButtonId" href="javascript:;" class="btn_dh" ontouchend="PTTSendClick('btn','btn_dh','点击兑换');"></a>
 		</div>
@@ -592,6 +592,57 @@
     }
     if(typeof(pgvMain)=='function')pgvMain();//埋点上报
 
+	let generatedCode = "";
+
+function drawCaptcha() {
+	const canvas = document.getElementById("verifyCanvas");
+	const ctx = canvas.getContext("2d");
+	const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+	const length = 4;
+	let code = "";
+
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = "#f0f0f0";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	for (let i = 0; i < length; i++) {
+		let char = chars.charAt(Math.floor(Math.random() * chars.length));
+		code += char;
+
+		ctx.font = "22px Arial";
+		ctx.fillStyle = getRandomColor();
+		let angle = Math.random() * 0.5 - 0.25;
+		ctx.save();
+		ctx.translate(20 * i + 10, 25);
+		ctx.rotate(angle);
+		ctx.fillText(char, -5, 5);
+		ctx.restore();
+	}
+
+	for (let i = 0; i < 4; i++) {
+		ctx.strokeStyle = getRandomColor();
+		ctx.beginPath();
+		ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+		ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+		ctx.stroke();
+	}
+
+	for (let i = 0; i < 30; i++) {
+		ctx.fillStyle = getRandomColor();
+		ctx.beginPath();
+		ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1, 0, 2 * Math.PI);
+		ctx.fill();
+	}
+
+	generatedCode = code.toLowerCase();
+}
+
+function getRandomColor() {
+	return `rgb(${Math.floor(Math.random()*150)},${Math.floor(Math.random()*150)},${Math.floor(Math.random()*150)})`;
+}
+
+document.getElementById("verifyCanvas").addEventListener("click", drawCaptcha);
+window.onload = drawCaptcha;
 </script>
 </body>
 </html>

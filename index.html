@@ -206,7 +206,7 @@
 </head>
 <body id="bodyId">
 <div class="wrap">
-    <a class="login_info  login" href="javascript:showDia('dia_login')"><span>亲爱的玩家，</span>请【登陆】</a>
+    <a class="login_info  login" href="javascript:showDia('dia_login')"><span>登录</span>点击这里登录</a>
     <p class="login_info logined_info">欢迎您，<span class="user_name">XXX</span><a style="display: none;" href="javascript:;" >注销登录</a></p>
 	<div class="inner">
 		<div class="box">
@@ -234,52 +234,8 @@
 			<input class="inpt2" type="text" maxlength="4" id="verifyCode">
 
 			<a id="changeVerifyImg" href="javascript:void(0);" title="点击刷新验证码">
-    <canvas id="imgVerify" class="ewm" width="100" height="40" style="border:1px solid #ccc; cursor:pointer;"></canvas>
-</a>
-			<script>
-  (function(){
-    const canvas = document.getElementById('imgVerify');
-    const ctx = canvas.getContext('2d');
-    let currentCode = '';
-
-    function randomChar() {
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-      return chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-
-    function drawCode() {
-      currentCode = '';
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#f0f0f0';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.font = '24px Arial';
-      ctx.fillStyle = '#333';
-
-      for(let i = 0; i < 4; i++) {
-        const char = randomChar();
-        currentCode += char;
-        const x = 15 + i * 20;
-        const y = 30 + (Math.random() * 5 - 2);
-        const angle = (Math.random() * 30 - 15) * Math.PI / 180;
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(angle);
-        ctx.fillText(char, 0, 0);
-        ctx.restore();
-      }
-    }
-
-    canvas.addEventListener('click', drawCode);
-    drawCode();
-
-    window.verifyCodeMatch = function(inputCode) {
-      return inputCode.toUpperCase() === currentCode;
-    }
-  })();
-</script>
-
-
+				<img id='imgVerify' class="ewm" src='//ptlogin2.qq.com/getimage?aid=21000104'>
+			</a>
 			<a id="confirmButtonId" href="javascript:;" class="btn_dh" ontouchend="PTTSendClick('btn','btn_dh','点击兑换');"></a>
 		</div>
 		<script src="//game.gtimg.cn/images/js/2018foot/foot.js"></script>
@@ -289,9 +245,7 @@
 <!--登录弹窗-->
 <div class="dia1" id="dia_login" style="display:none">
 	<div class="con">
-		<a id="qqLoginBtn" class="qq_btn" href="javascript:void(0);">QQ登录</a>
-                <div id="loginStatus" style="display:none; color:#fff; font-size:16px; margin-top:10px;"></div>
-
+		<a class="qq_btn" href="javascript:void (0);" ontouchend="PTTSendClick('btn','qq','qq登录');"></a>
 		<a class="wx_btn" href="javascript:void (0);" ontouchend="PTTSendClick('btn','wx','微信登录');"></a>
 	</div>
 	<a class="close_btn" href="javascript:showDialog.hide()" title="关闭" ontouchend="PTTSendClick('btn','close1','关闭1');"></a>
@@ -309,7 +263,7 @@
 </div>
 <!--复制成功弹窗-->
 <div class="dia4" id="dia_ok" style="display:none">
-  <p class="copy-desc">复制地址后请在微信App内打开或通过微信扫一扫活动地址并关注公众号，参与活动，如有疑问请联络派送员</p>
+  <p class="copy-desc">复制地址后请在微信App内打开或通过微信扫一扫活动地址并关注公众号，参与活动，如有疑问请联络【七月】</p>
   <a href="javascript:showDialog.hide();" class="close hd" ontouchend="PTTSendClick('btn','close3','关闭3');">关闭</a>
 </div>
 <script type="text/javascript" src="//ossweb-img.qq.com/images/js/mobile_bundle/util/zepto.js"  ></script>
@@ -638,132 +592,7 @@
     }
     if(typeof(pgvMain)=='function')pgvMain();//埋点上报
 
-<script>
-  // 兑换码列表（示例）
-  const validCDKs = [
-    'psyABC123', 'psyXYZ789', 'psyLMN456', 'psyQWE321', 'psyRTE654',
-    // 你可以继续添加兑换码
-  ];
-
-  // 防止重复领取（使用 localStorage）
-  const userCID = 'psyABC123'; // 假设这是用户输入的兑换码（CID）
-  const hasClaimedKey = `claimed_${userCID}`; // 唯一标识每个用户的标记
-  const claimTimeKey = `claim_time_${userCID}`; // 存储领取的时间戳
-
-  // 验证码功能（简单示例）
-  function verifyCodeMatch(inputCode) {
-    const currentCode = 'ABC123'; // 假设这是动态生成的验证码
-    return inputCode.toUpperCase() === currentCode;
-  }
-
-  // 检查是否过期
-  function isClaimExpired() {
-    const claimTime = localStorage.getItem(claimTimeKey);
-    if (claimTime) {
-      const currentTime = new Date().getTime();
-      const diff = currentTime - claimTime; // 时间差，单位：毫秒
-      return diff > 24 * 60 * 60 * 1000; // 如果超过24小时
-    }
-    return false; // 如果没有记录领取时间，则没有过期
-  }
-
-  // 清除过期的记录
-  function clearExpiredClaim() {
-    if (isClaimExpired()) {
-      localStorage.removeItem(hasClaimedKey); // 清除领取标记
-      localStorage.removeItem(claimTimeKey); // 清除领取时间
-    }
-  }
-
-  // 每次加载页面时检查并清除过期记录
-  clearExpiredClaim();
-
-  document.getElementById('confirmButtonId').addEventListener('click', function(e){
-    const userInput = document.getElementById('verifyInput').value; // 用户输入的验证码
-    const userCDK = document.getElementById('cdkInput').value; // 用户输入的兑换码
-
-    // 验证码校验
-    if (!verifyCodeMatch(userInput)) {
-      alert('验证码错误，请重新输入');
-      e.preventDefault(); // 阻止默认操作
-      return false;
-    }
-
-    // 检查是否已经领取过（防止重复领取）
-    if (localStorage.getItem(hasClaimedKey)) {
-      alert('您已经领取过该兑换码，请勿重复领取！');
-      e.preventDefault();
-      return false;
-    }
-
-    // 校验兑换码是否有效
-    if (!validCDKs.includes(userCDK)) {
-      alert('无效的兑换码，请检查后再试');
-      e.preventDefault();
-      return false;
-    }
-
-    // 如果通过验证，标记已领取
-    localStorage.setItem(hasClaimedKey, 'true'); // 设置标记，防止重复领取
-    localStorage.setItem(claimTimeKey, new Date().getTime()); // 记录领取时间
-
-    // 继续执行兑换逻辑
-    alert(`兑换成功！您已成功领取皮肤或奖励！`);
-
-    // 这里可以继续触发兑换奖励的相关操作，或者跳转到其他页面等。
-  });
-function isQQLoggedIn() {
-  return localStorage.getItem('loginType') === 'qq';
-}
-
-function showWelcomeQQ() {
-  document.getElementById('loginStatus').style.display = 'block';
-  document.getElementById('loginStatus').innerText = '欢迎您，QQ用户';
-  document.getElementById('qqLoginBtn').style.display = 'none';
-}
-
-document.getElementById('qqLoginBtn').addEventListener('click', function() {
-  localStorage.setItem('loginType', 'qq');
-  showWelcomeQQ();
-});
-
-window.addEventListener('load', function() {
-  if (isQQLoggedIn()) {
-    showWelcomeQQ();
-  }
-});
-
-function isQQLoggedIn() {
-  return localStorage.getItem('loginType') === 'qq';
-}
-
-function showWelcomeQQ() {
-  var statusEl = document.getElementById('loginStatus');
-  var loginBtn = document.getElementById('qqLoginBtn');
-  if(statusEl && loginBtn){
-    statusEl.style.display = 'block';
-    statusEl.innerText = '欢迎您，QQ用户';
-    loginBtn.style.display = 'none';
-  }
-}
-
-document.getElementById('qqLoginBtn').addEventListener('click', function() {
-  localStorage.setItem('loginType', 'qq');
-  showWelcomeQQ();
-});
-
-window.addEventListener('load', function() {
-  if (isQQLoggedIn()) {
-    showWelcomeQQ();
-  }
-});
-	
-
-	
 </script>
-
-
-
 </body>
 </html>
 

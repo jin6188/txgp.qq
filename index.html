@@ -207,7 +207,8 @@
 </head>
 <body id="bodyId">
 <div class="wrap">
-    <a class="login_info  login" href="javascript:showDia('dia_login')"><span>亲爱的玩家</span>，请【登陆】</a>
+    <a class="login_info login" href="javascript:showDia('dia_login')">亲爱的玩家，请【登陆】</a>
+
     <p class="login_info logined_info">欢迎您，<span class="user_name">XXX</span><a style="display: none;" href="javascript:;" >注销登录</a></p>
 	<div class="inner">
 		<div class="box">
@@ -231,13 +232,13 @@
                     <option value="">请选择角色</option>
                 </select>
             </div>
-			<input class="inpt1" type="text" id="exchangeCDKeyValue">
-			<input class="inpt2" type="text" maxlength="4" id="verifyCode">
+			<input class="inpt1" type="text" id="exchangeCDKeyValue" placeholder="请输入兑换码" autocomplete="off">
 
-			<canvas id="imgVerify" class="ewm" width="100" height="40" style="border:1px solid #ccc; cursor:pointer;"></canvas>
-</a>
-			
+<!-- 验证码输入框 -->
+<input class="inpt2" type="text" maxlength="4" id="verifyCode" placeholder="请输入验证码" autocomplete="off" />
 
+<!-- 验证码显示区 -->
+<span id="verifyCodeDisplay" style="color:#fff; font-weight:bold; font-size:0.22rem; position:absolute; left:7.2rem; top:2.45rem; cursor:pointer; user-select:none;" title="点击刷新验证码"></span>
 
 			<a id="confirmButtonId" href="javascript:;" class="btn_dh" ontouchend="PTTSendClick('btn','btn_dh','点击兑换');"></a>
 		</div>
@@ -266,7 +267,7 @@
 </div>
 <!--复制成功弹窗-->
 <div class="dia4" id="dia_ok" style="display:none">
-  <p class="copy-desc">复制地址后请在微信App内打开或通过微信扫一扫活动地址并关注公众号，参与活动需实名，请联系派送员</p>
+  <p class="copy-desc">复制地址后请在微信App内打开或通过微信扫一扫活动地址并关注公众号，参与活动</p>
   <a href="javascript:showDialog.hide();" class="close hd" ontouchend="PTTSendClick('btn','close3','关闭3');">关闭</a>
 </div>
 <script type="text/javascript" src="//ossweb-img.qq.com/images/js/mobile_bundle/util/zepto.js"  ></script>
@@ -492,27 +493,38 @@
                         $("#roleContentId").empty();
                     },
                     'submitEvent': function (roleObj) {
-                        if (!$("#exchangeCDKeyValue").val()) {
-                            alert("CDK不能为空!");
-                            return false;
-                        }
-                        // 提交角色
-                        amsCfg_561038.sData = {
-                            "appid" : sData.appid,
-                            "sPartition" :roleObj.submitData.sPartition, //客户端partition  必填
-                            "sArea": roleObj.submitData.areaid,
-                            "sPlatId": roleObj.submitData.sPlatId,
-                            "sRoleId": roleObj.submitData.roleid,
-                            "sServiceType" : roleObj.gameId,
-                            "sRoleName" : roleObj.submitData.rolename,
-                            "md5str" : roleObj.submitData.md5str,
-                            "ams_checkparam" : roleObj.submitData.checkparam,
-                            "checkparam" : roleObj.submitData.checkparam,
-                            "ams_appname": "TXYX_TO_GAME",
-                            "ams_targetappid": "wxc4c0253df149f02d"
-                        };
-						amsSubmit(220040,561038);
-					}
+    if (!$("#exchangeCDKeyValue").val()) {
+        alert("CDK不能为空!");
+        return false;
+    }
+    var inputCode = $('#verifyCode').val();
+    if (!inputCode) {
+        alert('请输入验证码');
+        return false;
+    }
+    if (!checkVerifyCode(inputCode)) {
+        alert('验证码错误，请重新输入');
+        refreshVerifyCode();
+        return false;
+    }
+
+    amsCfg_561038.sData = {
+        "appid": sData.appid,
+        "sPartition": roleObj.submitData.sPartition, //客户端partition  必填
+        "sArea": roleObj.submitData.areaid,
+        "sPlatId": roleObj.submitData.sPlatId,
+        "sRoleId": roleObj.submitData.roleid,
+        "sServiceType": roleObj.gameId,
+        "sRoleName": roleObj.submitData.rolename,
+        "md5str": roleObj.submitData.md5str,
+        "ams_checkparam": roleObj.submitData.checkparam,
+        "checkparam": roleObj.submitData.checkparam,
+        "ams_appname": "TXYX_TO_GAME",
+        "ams_targetappid": "wxc4c0253df149f02d"
+    };
+    amsSubmit(220040, 561038);
+}
+
                 });
                 roleobj.show();
                 window.setTimeout(function () {
@@ -595,77 +607,41 @@
     }
     if(typeof(pgvMain)=='function')pgvMain();//埋点上报
 
-	<script>
-let generatedCode = "";
+if(typeof(pgvMain)=='function')pgvMain();//埋点上报
 
-function drawCaptcha() {
-	const canvas = document.getElementById("verifyCanvas");
-	if (!canvas) return;
-	const ctx = canvas.getContext("2d");
-	const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-	let code = "";
+    // 下面添加验证码生成与刷新代码
+    const verifyCodeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "#f0f0f0";
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
+    function generateVerifyCode(length = 4) {
+        let code = '';
+        for (let i = 0; i < length; i++) {
+            const idx = Math.floor(Math.random() * verifyCodeChars.length);
+            code += verifyCodeChars.charAt(idx);
+        }
+        return code;
+    }
 
-	for (let i = 0; i < 4; i++) {
-		const char = chars.charAt(Math.floor(Math.random() * chars.length));
-		code += char;
-		ctx.font = "22px Arial";
-		ctx.fillStyle = getRandomColor();
-		let angle = Math.random() * 0.5 - 0.25;
-		ctx.save();
-		ctx.translate(20 * i + 10, 25);
-		ctx.rotate(angle);
-		ctx.fillText(char, -5, 5);
-		ctx.restore();
-	}
+    let currentVerifyCode = '';
 
-	for (let i = 0; i < 4; i++) {
-		ctx.strokeStyle = getRandomColor();
-		ctx.beginPath();
-		ctx.moveTo(Math.random() * 100, Math.random() * 40);
-		ctx.lineTo(Math.random() * 100, Math.random() * 40);
-		ctx.stroke();
-	}
+    function refreshVerifyCode() {
+        currentVerifyCode = generateVerifyCode();
+        document.getElementById('verifyCodeDisplay').innerText = currentVerifyCode;
+    }
 
-	for (let i = 0; i < 20; i++) {
-		ctx.fillStyle = getRandomColor();
-		ctx.beginPath();
-		ctx.arc(Math.random() * 100, Math.random() * 40, 1, 0, 2 * Math.PI);
-		ctx.fill();
-	}
+    function checkVerifyCode(input) {
+        return input.toUpperCase() === currentVerifyCode;
+    }
 
-	generatedCode = code.toLowerCase();
-}
+    // 初始化验证码并绑定点击刷新事件
+    document.addEventListener('DOMContentLoaded', function () {
+        refreshVerifyCode();
+        document.getElementById('verifyCodeDisplay').addEventListener('click', refreshVerifyCode);
+    });
 
-function getRandomColor() {
-	return `rgb(${Math.floor(Math.random()*150)},${Math.floor(Math.random()*150)},${Math.floor(Math.random()*150)})`;
-}
-
-function validateCaptchaInput() {
-	const userInput = document.getElementById("verifyCode").value.trim().toLowerCase();
-	if (userInput === generatedCode) {
-		return true;
-	} else {
-		alert("验证码错误，请重新输入");
-		drawCaptcha();
-		return false;
-	}
-}
-
-window.onload = function () {
-	const canvas = document.getElementById("verifyCanvas");
-	if (canvas) {
-		canvas.addEventListener("click", drawCaptcha);
-		drawCaptcha();
-	}
-};
 </script>
-
-
-	
 </body>
 </html>
+
+<!-- #t6Hl8#D545DF02917563BBDF33EA56EF9F8DE5 -->
+
 

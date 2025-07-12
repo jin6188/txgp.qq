@@ -233,7 +233,15 @@
 			<input class="inpt1" type="text" id="exchangeCDKeyValue">
 			<input class="inpt2" type="text" maxlength="4" id="verifyCode">
 
-			<canvas id="verifyCanvas" width="100" height="40" style="cursor:pointer; border:1px solid #ccc;" title="点击刷新验证码"></canvas>
+			<div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
+    <input class="inpt2" type="text" maxlength="4" id="verifyCode" placeholder="请输入验证码" style="flex: 1;">
+    <canvas id="verifyCanvas"
+        width="100"
+        height="40"
+        style="cursor:pointer; border:1px solid #ccc;">
+    </canvas>
+</div>
+
 
 			<a id="confirmButtonId" href="javascript:;" class="btn_dh" ontouchend="PTTSendClick('btn','btn_dh','点击兑换');"></a>
 		</div>

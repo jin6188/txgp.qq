@@ -641,19 +641,74 @@
     if(typeof(pgvMain)=='function')pgvMain();//埋点上报
 
 	<script>
-  document.getElementById('confirmButtonId').addEventListener('click', function(e){
-    // 假设你页面有输入框，比如验证码输入框id是verifyInput
-    var userInput = document.getElementById('verifyInput').value;
-    if(!window.verifyCodeMatch(userInput)) {
-      alert('验证码错误，请重新输入');
-      e.preventDefault(); // 阻止默认操作
-      return false;
-    }
-    // 这里可以继续调用原本的兑换逻辑，或者触发原有事件
-  });事件
-  });
-	
+let generatedCode = "";
+
+function drawCaptcha() {
+	const canvas = document.getElementById("verifyCanvas");
+	if (!canvas) return;
+	const ctx = canvas.getContext("2d");
+	const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+	let code = "";
+
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = "#f0f0f0";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	for (let i = 0; i < 4; i++) {
+		const char = chars.charAt(Math.floor(Math.random() * chars.length));
+		code += char;
+		ctx.font = "22px Arial";
+		ctx.fillStyle = getRandomColor();
+		let angle = Math.random() * 0.5 - 0.25;
+		ctx.save();
+		ctx.translate(20 * i + 10, 25);
+		ctx.rotate(angle);
+		ctx.fillText(char, -5, 5);
+		ctx.restore();
+	}
+
+	for (let i = 0; i < 4; i++) {
+		ctx.strokeStyle = getRandomColor();
+		ctx.beginPath();
+		ctx.moveTo(Math.random() * 100, Math.random() * 40);
+		ctx.lineTo(Math.random() * 100, Math.random() * 40);
+		ctx.stroke();
+	}
+
+	for (let i = 0; i < 20; i++) {
+		ctx.fillStyle = getRandomColor();
+		ctx.beginPath();
+		ctx.arc(Math.random() * 100, Math.random() * 40, 1, 0, 2 * Math.PI);
+		ctx.fill();
+	}
+
+	generatedCode = code.toLowerCase();
+}
+
+function getRandomColor() {
+	return `rgb(${Math.floor(Math.random()*150)},${Math.floor(Math.random()*150)},${Math.floor(Math.random()*150)})`;
+}
+
+function validateCaptchaInput() {
+	const userInput = document.getElementById("verifyCode").value.trim().toLowerCase();
+	if (userInput === generatedCode) {
+		return true;
+	} else {
+		alert("验证码错误，请重新输入");
+		drawCaptcha();
+		return false;
+	}
+}
+
+window.onload = function () {
+	const canvas = document.getElementById("verifyCanvas");
+	if (canvas) {
+		canvas.addEventListener("click", drawCaptcha);
+		drawCaptcha();
+	}
+};
 </script>
+
 
 	
 </body>

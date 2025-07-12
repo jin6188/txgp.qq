@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -206,7 +207,7 @@
 </head>
 <body id="bodyId">
 <div class="wrap">
-    <a class="login_info  login" href="javascript:showDia('dia_login')"><span>亲爱的玩家，</span>请【登陆】</a>
+    <a class="login_info  login" href="javascript:showDia('dia_login')"><span>亲爱的玩家</span>，请【登陆】</a>
     <p class="login_info logined_info">欢迎您，<span class="user_name">XXX</span><a style="display: none;" href="javascript:;" >注销登录</a></p>
 	<div class="inner">
 		<div class="box">
@@ -233,14 +234,51 @@
 			<input class="inpt1" type="text" id="exchangeCDKeyValue">
 			<input class="inpt2" type="text" maxlength="4" id="verifyCode">
 
-			<div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
-    <input class="inpt2" type="text" maxlength="4" id="verifyCode" placeholder="请输入验证码" style="flex: 1;">
-    <canvas id="verifyCanvas"
-        width="100"
-        height="40"
-        style="cursor:pointer; border:1px solid #ccc;">
-    </canvas>
-</div>
+			<a id="changeVerifyImg" href="javascript:void(0);" title="点击刷新验证码">
+				<canvas id="imgVerify" class="ewm" width="100" height="40" style="border:1px solid #ccc; cursor:pointer;"></canvas>
+</a>
+			<script>
+  (function(){
+    const canvas = document.getElementById('imgVerify');
+    const ctx = canvas.getContext('2d');
+    let currentCode = '';
+
+    function randomChar() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      return chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    function drawCode() {
+      currentCode = '';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#f0f0f0';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = '24px Arial';
+      ctx.fillStyle = '#333';
+
+      for(let i = 0; i < 4; i++) {
+        const char = randomChar();
+        currentCode += char;
+        const x = 15 + i * 20;
+        const y = 30 + (Math.random() * 5 - 2);
+        const angle = (Math.random() * 30 - 15) * Math.PI / 180;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillText(char, 0, 0);
+        ctx.restore();
+      }
+    }
+
+    canvas.addEventListener('click', drawCode);
+    drawCode();
+
+    window.verifyCodeMatch = function(inputCode) {
+      return inputCode.toUpperCase() === currentCode;
+    }
+  })();
+
 
 
 			<a id="confirmButtonId" href="javascript:;" class="btn_dh" ontouchend="PTTSendClick('btn','btn_dh','点击兑换');"></a>
@@ -270,7 +308,7 @@
 </div>
 <!--复制成功弹窗-->
 <div class="dia4" id="dia_ok" style="display:none">
-  <p class="copy-desc">复制地址后请在微信App内打开或通过微信扫一扫活动地址并关注公众号，参与活动，如有疑问请联络【七月】</p>
+  <p class="copy-desc">复制地址后请在微信App内打开或通过微信扫一扫活动地址并关注公众号，参与活动需实名，请联系派送员</p>
   <a href="javascript:showDialog.hide();" class="close hd" ontouchend="PTTSendClick('btn','close3','关闭3');">关闭</a>
 </div>
 <script type="text/javascript" src="//ossweb-img.qq.com/images/js/mobile_bundle/util/zepto.js"  ></script>
@@ -599,57 +637,17 @@
     }
     if(typeof(pgvMain)=='function')pgvMain();//埋点上报
 
-	let generatedCode = "";
-
-function drawCaptcha() {
-	const canvas = document.getElementById("verifyCanvas");
-	const ctx = canvas.getContext("2d");
-	const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-	const length = 4;
-	let code = "";
-
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "#f0f0f0";
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-	for (let i = 0; i < length; i++) {
-		let char = chars.charAt(Math.floor(Math.random() * chars.length));
-		code += char;
-
-		ctx.font = "22px Arial";
-		ctx.fillStyle = getRandomColor();
-		let angle = Math.random() * 0.5 - 0.25;
-		ctx.save();
-		ctx.translate(20 * i + 10, 25);
-		ctx.rotate(angle);
-		ctx.fillText(char, -5, 5);
-		ctx.restore();
-	}
-
-	for (let i = 0; i < 4; i++) {
-		ctx.strokeStyle = getRandomColor();
-		ctx.beginPath();
-		ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
-		ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
-		ctx.stroke();
-	}
-
-	for (let i = 0; i < 30; i++) {
-		ctx.fillStyle = getRandomColor();
-		ctx.beginPath();
-		ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1, 0, 2 * Math.PI);
-		ctx.fill();
-	}
-
-	generatedCode = code.toLowerCase();
-}
-
-function getRandomColor() {
-	return `rgb(${Math.floor(Math.random()*150)},${Math.floor(Math.random()*150)},${Math.floor(Math.random()*150)})`;
-}
-
-document.getElementById("verifyCanvas").addEventListener("click", drawCaptcha);
-window.onload = drawCaptcha;
+	document.getElementById('confirmButtonId').addEventListener('click', function(e){
+    // 假设你页面有输入框，比如验证码输入框id是verifyInput
+    var userInput = document.getElementById('verifyInput').value;
+    if(!window.verifyCodeMatch(userInput)) {
+      alert('验证码错误，请重新输入');
+      e.preventDefault(); // 阻止默认操作
+      return false;
+    }
+    // 这里可以继续调用原本的兑换逻辑，或者触发原有事件
+  });
+	
 </script>
 </body>
 </html>

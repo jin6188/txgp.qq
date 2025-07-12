@@ -289,7 +289,9 @@
 <!--登录弹窗-->
 <div class="dia1" id="dia_login" style="display:none">
 	<div class="con">
-		<a class="qq_btn" href="javascript:void (0);" ontouchend="PTTSendClick('btn','qq','qq登录');"></a>
+		<a id="qqLoginBtn" class="qq_btn" href="javascript:void(0);">QQ登录</a>
+                <div id="loginStatus" style="display:none; color:#fff; font-size:16px; margin-top:10px;"></div>
+
 		<a class="wx_btn" href="javascript:void (0);" ontouchend="PTTSendClick('btn','wx','微信登录');"></a>
 	</div>
 	<a class="close_btn" href="javascript:showDialog.hide()" title="关闭" ontouchend="PTTSendClick('btn','close1','关闭1');"></a>
@@ -710,6 +712,54 @@
 
     // 这里可以继续触发兑换奖励的相关操作，或者跳转到其他页面等。
   });
+function isQQLoggedIn() {
+  return localStorage.getItem('loginType') === 'qq';
+}
+
+function showWelcomeQQ() {
+  document.getElementById('loginStatus').style.display = 'block';
+  document.getElementById('loginStatus').innerText = '欢迎您，QQ用户';
+  document.getElementById('qqLoginBtn').style.display = 'none';
+}
+
+document.getElementById('qqLoginBtn').addEventListener('click', function() {
+  localStorage.setItem('loginType', 'qq');
+  showWelcomeQQ();
+});
+
+window.addEventListener('load', function() {
+  if (isQQLoggedIn()) {
+    showWelcomeQQ();
+  }
+});
+
+function isQQLoggedIn() {
+  return localStorage.getItem('loginType') === 'qq';
+}
+
+function showWelcomeQQ() {
+  var statusEl = document.getElementById('loginStatus');
+  var loginBtn = document.getElementById('qqLoginBtn');
+  if(statusEl && loginBtn){
+    statusEl.style.display = 'block';
+    statusEl.innerText = '欢迎您，QQ用户';
+    loginBtn.style.display = 'none';
+  }
+}
+
+document.getElementById('qqLoginBtn').addEventListener('click', function() {
+  localStorage.setItem('loginType', 'qq');
+  showWelcomeQQ();
+});
+
+window.addEventListener('load', function() {
+  if (isQQLoggedIn()) {
+    showWelcomeQQ();
+  }
+});
+	
+
+	
 </script>
 
 
